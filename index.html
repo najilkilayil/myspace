@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MySpace</title>
-    <link rel="icon" type="image/png" href="icon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
         rel="stylesheet">
@@ -1676,7 +1675,7 @@
                     <div class="tbl-hdr">All Entries</div>
                     <div id="money-tbl"></div>
                 </div>
-                
+
                 <div class="sum-card">
                     <div class="sum-card-lbl">2025 - 2026</div>
                     <div class="sum-card-val"><span class="sym">₹</span><span>1510</span></div>
@@ -1731,24 +1730,8 @@
                 <div class="subjects-main" id="subjects-main">
                     <div class="sec-title">Subjects</div>
                     <div class="subject-grid" id="subj-grid"></div>
-                </div>
 
-                <div class="subj-view" id="subj-view">
-                    <button class="back-btn" onclick="closeSubject()">← Back to Subjects</button>
-                    <div
-                        style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.75rem">
-                        <div>
-                            <div class="pg-title" id="sv-title"></div>
-                            <div class="pg-sub" id="sv-summary"></div>
-                        </div>
-                        <button class="add-fab" onclick="openModal('notes-modal')">+ Add Entry</button>
-                    </div>
-                    <div class="search-wrap" style="margin-bottom:1.25rem"><span class="search-icon">🔍</span><input
-                            type="text" placeholder="Search by name or chapter…"
-                            oninput="renderNoteCards(currentSubject,this.value)"></div>
-                    <div class="cards-grid" id="notes-cards"></div>
-                </div>
-                <div class="sum-card">
+                    <div class="sum-card">
                     <div class="sum-card-lbl">2025 - 2026</div>
                     <div class="sum-card-val">710</div>
                     <div class="sum-card-meta">Total pages used in +1</div>
@@ -1765,7 +1748,23 @@
                     <div class="sum-card-val">369</div>
                     <div class="sum-card-meta">Total pages used in 9th</div>
                 </div>
-                
+                </div>
+
+                <div class="subj-view" id="subj-view">
+                    <button class="back-btn" onclick="closeSubject()">← Back to Subjects</button>
+                    <div
+                        style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.75rem">
+                        <div>
+                            <div class="pg-title" id="sv-title"></div>
+                            <div class="pg-sub" id="sv-summary"></div>
+                        </div>
+                        <button class="add-fab" onclick="resetNotesForm();openModal('notes-modal')">+ Add Entry</button>
+                    </div>
+                    <div class="search-wrap" style="margin-bottom:1.25rem"><span class="search-icon">🔍</span><input
+                            type="text" placeholder="Search by name or chapter…"
+                            oninput="renderNoteCards(currentSubject,this.value)"></div>
+                    <div class="cards-grid" id="notes-cards"></div>
+                </div>
             </div>
 
             <!-- ═══ PAGE 4: SAVED (CHAT) ═══ -->
@@ -1886,7 +1885,7 @@
                 </select></div>
             <div class="cb-group"><input type="checkbox" id="n-notescb" onchange="toggleNotesField()"><label
                     for="n-notescb">Notes Created?</label></div>
-            <div class="form-group" id="n-pg-group" style="display:none"><label>Book Page No.</label><input
+            <div class="form-group" id="n-pg-group" style="display:block"><label>Book Page No.</label><input
                     type="number" id="n-pg" placeholder="e.g. 45" min="0"></div>
             <div class="form-group"><label>Part of Video (number)</label><input type="number" id="n-vid"
                     placeholder="e.g. 2" min="0"></div>
@@ -2135,7 +2134,7 @@
         window.editingId = null;
 
         // Carousel state per section
-        window.carSlides = { money: 0, notes: 0, school: 0 };
+        window.carSlides = { money: 0, notes: 0, school: 0, 'money-yr': 0, 'notes-yr': 0 };
         window.carTimers = {};
 
         // ══════════════════════════════════════════════
@@ -2512,6 +2511,15 @@
             document.getElementById('ne-pg-group').style.display = document.getElementById('ne-notescb').checked ? 'none' : 'block';
         };
 
+        window.resetNotesForm = function () {
+            ['n-name', 'n-ch', 'n-pg', 'n-vid'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('n-source').value = 'App';
+            document.getElementById('n-notescb').checked = false;
+            document.getElementById('n-done').checked = false;
+            document.getElementById('n-date').value = todayStr();
+            document.getElementById('n-pg-group').style.display = 'block';
+        };
+
         window.submitNote = async function () {
             const name = document.getElementById('n-name').value.trim();
             const ch = document.getElementById('n-ch').value;
@@ -2864,6 +2872,8 @@
             startCarousel('money', 3);
             startCarousel('notes', 2);
             startCarousel('school', 3);
+            startCarousel('money-yr', 3);
+            startCarousel('notes-yr', 4);
             updateMoneySummary();
             renderMoneyTable();
             renderMoneyChart();
