@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySpace</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080810;--bg2:#0f0f1a;--bg3:#161625;
+  --card:#1c1c2e;--card2:#232336;--card3:#2a2a40;
+  --accent:#7c6af5;--accent2:#a78bfa;--accent3:#f472b6;
+  --text:#f0eeff;--text2:#9990cc;--text3:#5c5580;
+  --border:#252540;--border2:#2e2e50;
+  --green:#34d399;--amber:#fbbf24;--red:#f87171;--blue:#60a5fa;
+  --radius:14px;--radius-sm:9px;--radius-xs:6px;
+  --nav-bg:rgba(8,8,16,0.75);--mob-bg:rgba(10,10,18,0.97);
+}
+:root.light{
+  --bg:#f4f4f8;--bg2:#ecedf5;--bg3:#e2e3ef;
+  --card:#ffffff;--card2:#f0f0f8;--card3:#e8e8f4;
+  --accent:#6355e0;--accent2:#7c6af5;--accent3:#e4458e;
+  --text:#16152a;--text2:#4a4878;--text3:#9290b8;
+  --border:#d8d7ec;--border2:#c8c7e0;
+  --green:#1a9e6e;--amber:#c47d00;--red:#d94f4f;--blue:#2a74d4;
+  --nav-bg:rgba(244,244,248,0.82);--mob-bg:rgba(240,240,248,0.98);
+}
+*,*::before,*::after{transition:background-color 0.25s ease,border-color 0.25s ease,color 0.2s ease,box-shadow 0.25s ease}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* ═══ PIN SCREEN ═══ */
+#pin-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;background-image:radial-gradient(ellipse at 25% 60%,rgba(124,106,245,0.13) 0%,transparent 55%),radial-gradient(ellipse at 75% 20%,rgba(244,114,182,0.09) 0%,transparent 50%)}
+.pin-box{text-align:center;width:300px}
+.pin-logo{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:700;color:var(--text);margin-bottom:0.2rem}
+.pin-logo span{color:var(--accent2)}
+.pin-sub{font-size:0.82rem;color:var(--text3);margin-bottom:2.5rem;letter-spacing:0.06em;text-transform:uppercase}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:2.2rem}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--border2);transition:all 0.2s}
+.pin-dot.filled{background:var(--accent2);border-color:var(--accent2);box-shadow:0 0 14px rgba(167,139,250,0.45)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:230px;margin:0 auto 0.75rem}
+.pin-btn{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:600;padding:1rem;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.14s;user-select:none}
+.pin-btn:hover{background:var(--card2);border-color:var(--accent);color:var(--accent2)}
+.pin-btn:active{transform:scale(0.93)}
+.pin-btn.zero{grid-column:2}
+.pin-btn.del{background:transparent;border-color:transparent;color:var(--text3);font-size:1.1rem}
+.pin-btn.del:hover{color:var(--red);background:rgba(248,113,113,0.07)}
+.pin-error{color:var(--red);font-size:0.78rem;margin-top:0.4rem;height:1rem}
+
+/* ═══ APP SHELL ═══ */
+#app{display:none;flex-direction:column;min-height:100vh}
+
+/* ═══ NAVBAR ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--nav-bg);backdrop-filter:blur(22px);border-bottom:1px solid var(--border);padding:0 1.5rem;height:58px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);white-space:nowrap}
+.nav-logo span{color:var(--accent2)}
+.nav-tabs{display:flex;gap:2px;flex-wrap:nowrap}
+.nav-tab{padding:0.38rem 0.8rem;border-radius:var(--radius-xs);font-size:0.78rem;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.18s;border:none;background:none;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:var(--card)}
+.nav-tab.active{color:var(--accent2);background:rgba(124,106,245,0.13)}
+
+/* ═══ MOBILE NAV ═══ */
+.mob-top{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1rem;height:54px;align-items:center;justify-content:space-between}
+.mob-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2)}
+.hamburger{background:none;border:none;cursor:pointer;padding:5px;display:flex;flex-direction:column;gap:5px}
+.hamburger span{display:block;width:21px;height:2px;background:var(--text2);border-radius:2px;transition:all 0.28s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mob-menu{position:fixed;top:54px;left:0;right:0;z-index:190;background:var(--mob-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);transform:translateY(-110%);transition:transform 0.3s ease;padding:0.4rem 0}
+.mob-menu.open{transform:translateY(0)}
+.mob-menu-tab{display:block;width:100%;padding:0.9rem 1.5rem;font-size:0.95rem;font-weight:500;color:var(--text2);background:none;border:none;text-align:left;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.18s}
+.mob-menu-tab:hover,.mob-menu-tab.active{color:var(--accent2);background:rgba(124,106,245,0.08)}
+
+/* ═══ MAIN CONTENT ═══ */
+main{flex:1;padding-top:58px}
+.tab-page{display:none;padding:1.75rem 1.5rem;max-width:920px;margin:0 auto;animation:fadeIn 0.28s ease}
+.tab-page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ SHARED COMPONENTS ═══ */
+.pg-title{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:700;color:var(--text);margin-bottom:0.2rem}
+.pg-sub{font-size:0.82rem;color:var(--text3);margin-bottom:1.75rem}
+.sec-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:600;color:var(--text);margin-bottom:1rem}
+
+/* CAROUSEL */
+.car-wrap{position:relative;overflow:hidden;border-radius:var(--radius);margin-bottom:1.75rem}
+.car-track{display:flex;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1)}
+.sum-card{min-width:100%;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.6rem 1.75rem;background-image:radial-gradient(ellipse at top right,rgba(124,106,245,0.07) 0%,transparent 65%)}
+.sum-card-lbl{font-size:0.72rem;font-weight:500;letter-spacing:0.09em;color:var(--text3);text-transform:uppercase;margin-bottom:0.4rem}
+.sum-card-val{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:700;color:var(--text)}
+.sum-card-val .sym{font-size:1.1rem;color:var(--accent2);margin-right:2px}
+.sum-card-meta{font-size:0.78rem;color:var(--text3);margin-top:0.35rem}
+.car-dots{display:flex;gap:5px;justify-content:center;padding:0.75rem 0 0}
+.cdot{width:6px;height:6px;border-radius:50%;background:var(--border2);cursor:pointer;transition:all 0.28s}
+.cdot.active{background:var(--accent2);width:18px;border-radius:3px}
+
+/* SEARCH BAR */
+.search-wrap{position:relative;margin-bottom:1.25rem}
+.search-wrap input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.65rem 1rem 0.65rem 2.5rem;color:var(--text);font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:var(--text3);font-size:0.9rem;pointer-events:none}
+
+/* ACTION BTN */
+.action-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap}
+.add-fab{background:linear-gradient(135deg,var(--accent),#9f85ff);border:none;color:white;font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:600;padding:0.6rem 1.2rem;border-radius:var(--radius-sm);cursor:pointer;letter-spacing:0.03em;transition:all 0.18s;white-space:nowrap}
+.add-fab:hover{opacity:0.88;transform:translateY(-1px)}
+.add-fab:active{transform:scale(0.97)}
+
+/* GENERIC CARDS GRID */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem}
+.g-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.15rem 1.25rem;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.g-card:hover{border-color:var(--border2);background:var(--card2)}
+.g-card-title{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.25rem;word-break:break-word}
+.g-card-sub{font-size:0.78rem;color:var(--text2);word-break:break-all}
+.g-card-tag{font-size:0.68rem;color:var(--accent2);background:rgba(124,106,245,0.12);padding:2px 7px;border-radius:4px;display:inline-block;margin-top:0.5rem}
+
+/* EXPANDED CARD */
+.g-card.expanded{border-color:var(--accent);background:var(--card2);cursor:default}
+.g-card.expanded .expand-body{display:block}
+.expand-body{display:none;margin-top:0.9rem;padding-top:0.9rem;border-top:1px solid var(--border2)}
+.expand-row{font-size:0.8rem;color:var(--text2);margin-bottom:0.4rem;line-height:1.5;word-break:break-all}
+.expand-row strong{color:var(--text3);font-weight:500;margin-right:4px}
+.expand-actions{display:flex;gap:0.6rem;margin-top:0.85rem;flex-wrap:wrap}
+.ea-btn{padding:0.38rem 0.85rem;border-radius:var(--radius-xs);font-size:0.75rem;font-weight:500;cursor:pointer;transition:all 0.15s;border:1px solid;font-family:'DM Sans',sans-serif}
+.ea-copy{background:rgba(96,165,250,0.1);color:var(--blue);border-color:rgba(96,165,250,0.25)}
+.ea-copy:hover{background:rgba(96,165,250,0.2)}
+.ea-edit{background:rgba(124,106,245,0.1);color:var(--accent2);border-color:rgba(124,106,245,0.25)}
+.ea-edit:hover{background:rgba(124,106,245,0.2)}
+.ea-del{background:rgba(248,113,113,0.08);color:var(--red);border-color:rgba(248,113,113,0.2)}
+.ea-del:hover{background:rgba(248,113,113,0.16)}
+
+.empty-state{padding:3rem;text-align:center;color:var(--text3);font-size:0.88rem}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.75rem;right:1.75rem;z-index:9998;background:var(--card2);border:1px solid var(--green);border-radius:var(--radius-sm);padding:0.8rem 1.3rem;font-size:0.88rem;color:var(--green);transform:translateY(80px);opacity:0;transition:all 0.32s cubic-bezier(0.4,0,0.2,1);pointer-events:none;max-width:280px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ═══ MODALS ═══ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(5px);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:1.5rem 1rem;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.75rem;width:100%;max-width:460px;margin:auto}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.3rem;padding:2px 6px;border-radius:4px}
+.modal-close:hover{color:var(--text);background:var(--card2)}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:0.72rem;font-weight:500;letter-spacing:0.07em;color:var(--text3);text-transform:uppercase;margin-bottom:0.4rem}
+.form-group input,.form-group textarea,.form-group select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.6rem 0.85rem;color:var(--text);font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.18s;resize:vertical}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group input::placeholder,.form-group textarea::placeholder{color:var(--text3)}
+.form-group input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.5)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.cb-group{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0}
+.cb-group input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent2);cursor:pointer}
+.cb-group label{font-size:0.88rem;color:var(--text2);cursor:pointer;margin:0;text-transform:none;letter-spacing:0;font-weight:400}
+.modal-actions{display:flex;gap:0.75rem;margin-top:1.5rem}
+.mbtn{flex:1;padding:0.7rem;border-radius:var(--radius-sm);font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.18s;border:none;font-family:'DM Sans',sans-serif}
+.mbtn-cancel{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.mbtn-cancel:hover{background:var(--card2)}
+.mbtn-submit{background:linear-gradient(135deg,var(--accent),#9f85ff);color:white}
+.mbtn-submit:hover{opacity:0.88}
+.mbtn-danger{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.28)}
+.mbtn-danger:hover{background:rgba(248,113,113,0.22)}
+
+/* ═══ PAGE 1: MONEY ═══ */
+.money-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;margin-bottom:0.9rem}
+.inp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.3rem;transition:border-color 0.18s}
+.inp-card:focus-within{border-color:var(--accent)}
+.inp-card label{display:block;font-size:0.68rem;font-weight:500;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;margin-bottom:0.4rem}
+.inp-card input{width:100%;background:none;border:none;outline:none;font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:600;color:var(--text)}
+.inp-card input::placeholder{color:var(--text3)}
+.inp-card input[type=date]::-webkit-calendar-picker-indicator{filter:invert(0.5)}
+.inp-card.full{grid-column:1/-1}
+.main-add-btn{width:100%;padding:0.95rem;border-radius:var(--radius);background:linear-gradient(135deg,var(--accent),#9f85ff);border:none;color:white;font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;letter-spacing:0.04em;transition:all 0.18s}
+.main-add-btn:hover{opacity:0.9;transform:translateY(-1px)}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.75rem 0}
+.tbl-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem}
+.tbl-hdr{padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;color:var(--text)}
+table{width:100%;border-collapse:collapse}
+th{padding:0.65rem 0.9rem;text-align:left;font-size:0.68rem;font-weight:500;letter-spacing:0.08em;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3)}
+td{padding:0.8rem 0.9rem;font-size:0.85rem;color:var(--text2);border-bottom:1px solid rgba(37,37,64,0.6);cursor:pointer;transition:background 0.18s}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(124,106,245,0.05);color:var(--text)}
+.td-total{font-weight:500;color:var(--accent2)}
+.td-date{color:var(--text);font-weight:500}
+
+/* ═══ PAGE 2: TECH CORNER ═══ */
+/* uses generic cards */
+
+/* ═══ PAGE 3: NOTES ═══ */
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;margin-bottom:2rem}
+.subj-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:all 0.2s;text-align:center}
+.subj-card:hover{border-color:var(--border2);background:var(--card2);transform:translateY(-2px)}
+.subj-emoji{font-size:1.6rem;margin-bottom:0.5rem}
+.subj-name{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:0.25rem}
+.subj-count{font-size:0.75rem;color:var(--text3)}
+.subj-view{display:none}
+.subj-view.active{display:block}
+.subjects-main.hidden{display:none}
+.back-btn{display:flex;align-items:center;gap:0.4rem;background:none;border:none;color:var(--text2);cursor:pointer;font-size:0.85rem;font-family:'DM Sans',sans-serif;padding:0;margin-bottom:1.5rem;transition:color 0.18s}
+.back-btn:hover{color:var(--accent2)}
+
+/* ═══ PAGE 4: SAVED (CHAT) ═══ */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 120px);min-height:400px}
+.chat-messages{flex:1;overflow-y:auto;padding:1rem 0;display:flex;flex-direction:column;gap:0.75rem;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.chat-msg{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;position:relative;animation:fadeIn 0.25s ease}
+.chat-msg:hover .msg-actions{opacity:1}
+.msg-text{font-size:0.9rem;color:var(--text);line-height:1.6;word-break:break-word;white-space:pre-wrap}
+.msg-time{font-size:0.7rem;color:var(--text3);margin-top:0.4rem}
+.msg-actions{position:absolute;top:0.75rem;right:0.75rem;display:flex;gap:0.4rem;opacity:0;transition:opacity 0.18s}
+.msg-act-btn{background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-xs);padding:3px 7px;font-size:0.68rem;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.msg-act-btn:hover{color:var(--text);border-color:var(--accent)}
+.chat-input-row{display:flex;gap:0.75rem;padding:1rem 0 0;border-top:1px solid var(--border)}
+.chat-input-row textarea{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.7rem 1rem;color:var(--text);font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;resize:none;max-height:120px;transition:border-color 0.18s;line-height:1.5}
+.chat-input-row textarea:focus{border-color:var(--accent)}
+.chat-input-row textarea::placeholder{color:var(--text3)}
+.send-btn{background:linear-gradient(135deg,var(--accent),#9f85ff);border:none;color:white;border-radius:var(--radius-sm);padding:0 1.2rem;cursor:pointer;font-size:1.1rem;transition:all 0.18s;min-width:48px}
+.send-btn:hover{opacity:0.88}
+
+/* ═══ PAGE 5: PASSWORDS ═══ */
+.pwd-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.15rem 1.25rem;cursor:pointer;transition:all 0.2s}
+.pwd-card:hover{border-color:var(--border2);background:var(--card2)}
+.pwd-card.expanded{border-color:var(--accent);cursor:default}
+.pwd-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.pwd-site{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;color:var(--text)}
+.pwd-user{font-size:0.78rem;color:var(--text2);margin-top:0.15rem}
+.eye-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:1rem;padding:2px 4px;transition:color 0.15s;flex-shrink:0}
+.eye-btn:hover{color:var(--accent2)}
+.pwd-display{font-family:monospace;font-size:0.85rem;color:var(--text2);margin-top:0.6rem;cursor:pointer;letter-spacing:0.06em;word-break:break-all}
+.pwd-display:hover{color:var(--blue)}
+
+/* ═══ PAGE 6: SCHOOL ═══ */
+.tt-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.75rem}
+.tt-hdr{padding:1rem 1.25rem;border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;color:var(--text)}
+.tt-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.tt-table th{padding:0.55rem 0.7rem;text-align:center;font-size:0.65rem;font-weight:500;letter-spacing:0.06em;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3)}
+.tt-table td{padding:0.55rem 0.7rem;text-align:center;color:var(--text2);border-bottom:1px solid rgba(37,37,64,0.5);font-size:0.75rem}
+.tt-table tr:last-child td{border-bottom:none}
+.tt-table .period-lbl{font-weight:500;color:var(--text3);background:var(--bg3)}
+.abs-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.9rem}
+.abs-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem}
+.abs-card-date{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:0.25rem}
+.abs-card-reason{font-size:0.78rem;color:var(--text2)}
+.abs-tag{font-size:0.68rem;color:var(--amber);background:rgba(251,191,36,0.1);padding:2px 7px;border-radius:4px;display:inline-block;margin-top:0.5rem}
+
+/* CHART */
+.chart-legend{display:flex;gap:1.2rem;margin-bottom:0.9rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:0.75rem;color:var(--text2)}
+.ldot{width:9px;height:9px;border-radius:2px}
+
+
+/* ═══ THEME TOGGLE ═══ */
+.theme-toggle{background:var(--card2);border:1px solid var(--border2);border-radius:20px;cursor:pointer;padding:4px;display:flex;align-items:center;gap:0;transition:all 0.2s;flex-shrink:0;width:52px;height:28px;position:relative}
+.theme-toggle-knob{width:20px;height:20px;border-radius:50%;background:var(--accent2);position:absolute;left:4px;transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);display:flex;align-items:center;justify-content:center;font-size:11px}
+:root.light .theme-toggle-knob{transform:translateX(24px)}
+.theme-toggle-track{width:100%;display:flex;align-items:center;justify-content:space-between;padding:0 5px;font-size:11px;pointer-events:none;color:var(--text3)}
+.mob-theme-row{padding:0.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border)}
+.mob-theme-lbl{font-size:0.88rem;color:var(--text2);font-family:'DM Sans',sans-serif}
+.pin-theme-btn{position:absolute;top:1.25rem;right:1.25rem;z-index:10}
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:680px){
+  nav{display:none}
+  .mob-top{display:flex}
+  main{padding-top:54px;border-top:1px solid var(--border)}
+  .tab-page{padding:1.1rem}
+  .money-form-grid{grid-template-columns:1fr}
+  .inp-card.full{grid-column:auto}
+  .form-row{grid-template-columns:1fr}
+  .tbl-card{overflow-x:auto}
+  .tt-card{overflow-x:auto}
+  .chat-wrap{height:calc(100vh - 100px)}
+  .nav-tabs{display:none}
+}
+@media(min-width:681px){
+  .mob-top,.mob-menu{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ PIN SCREEN ═══ -->
+<div id="pin-screen">
+  <button class="theme-toggle pin-theme-btn" onclick="toggleTheme()" title="Toggle theme"><div class="theme-toggle-track"><span>🌙</span><span>☀️</span></div><div class="theme-toggle-knob" id="theme-knob3">🌙</div></button>
+  <div class="pin-box">
+    <div class="pin-logo">My<span>Space</span></div>
+    <div class="pin-sub">Enter PIN to continue</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pp('1')">1</button>
+      <button class="pin-btn" onclick="pp('2')">2</button>
+      <button class="pin-btn" onclick="pp('3')">3</button>
+      <button class="pin-btn" onclick="pp('4')">4</button>
+      <button class="pin-btn" onclick="pp('5')">5</button>
+      <button class="pin-btn" onclick="pp('6')">6</button>
+      <button class="pin-btn" onclick="pp('7')">7</button>
+      <button class="pin-btn" onclick="pp('8')">8</button>
+      <button class="pin-btn" onclick="pp('9')">9</button>
+      <button class="pin-btn zero" onclick="pp('0')">0</button>
+      <button class="pin-btn del" onclick="pd()">⌫</button>
+    </div>
+    <div class="pin-error" id="pin-err"></div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+
+  <nav>
+    <div class="nav-logo">My<span>Space</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="goTab('money',this)">Money Use</button>
+      <button class="nav-tab" onclick="goTab('tech',this)">Tech Corner</button>
+      <button class="nav-tab" onclick="goTab('notes',this)">Notes</button>
+      <button class="nav-tab" onclick="goTab('saved',this)">Saved</button>
+      <button class="nav-tab" onclick="goTab('passwords',this)">Passwords</button>
+      <button class="nav-tab" onclick="goTab('school',this)">School</button>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn" title="Toggle theme"><div class="theme-toggle-track"><span>🌙</span><span>☀️</span></div><div class="theme-toggle-knob" id="theme-knob">🌙</div></button>
+  </nav>
+
+  <div class="mob-top">
+    <div class="mob-title" id="mob-title">Money Use</div>
+    <button class="hamburger" id="hbg" onclick="togMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mob-menu" id="mob-menu">
+    <button class="mob-menu-tab active" onclick="mobTab('money','Money Use',this)">Money Use</button>
+    <button class="mob-menu-tab" onclick="mobTab('tech','Tech Corner',this)">Tech Corner</button>
+    <button class="mob-menu-tab" onclick="mobTab('notes','Notes',this)">Notes</button>
+    <button class="mob-menu-tab" onclick="mobTab('saved','Saved',this)">Saved</button>
+    <button class="mob-menu-tab" onclick="mobTab('passwords','Passwords',this)">Passwords</button>
+    <button class="mob-menu-tab" onclick="mobTab('school','School',this)">School</button>
+    <div class="mob-theme-row"><span class="mob-theme-lbl" id="mob-theme-lbl">Dark Mode</span><button class="theme-toggle" onclick="toggleTheme()" style="position:relative"><div class="theme-toggle-track"><span>🌙</span><span>☀️</span></div><div class="theme-toggle-knob" id="theme-knob2">🌙</div></button></div>
+  </div>
+
+  <main>
+
+    <!-- ═══ PAGE 1: MONEY USE ═══ -->
+    <div class="tab-page active" id="tab-money">
+      <div class="pg-title">Money Use</div>
+      <div class="pg-sub">Track your daily expenses</div>
+
+      <div class="car-wrap" id="money-car">
+        <div class="car-track" id="money-car-track">
+          <div class="sum-card"><div class="sum-card-lbl">Today</div><div class="sum-card-val"><span class="sym">₹</span><span id="m-today">0</span></div><div class="sum-card-meta">Total spent today</div></div>
+          <div class="sum-card"><div class="sum-card-lbl">Total in Month</div><div class="sum-card-val"><span class="sym">₹</span><span id="m-month">0</span></div><div class="sum-card-meta" id="m-month-lbl">This month</div></div>
+          <div class="sum-card"><div class="sum-card-lbl">Total</div><div class="sum-card-val"><span class="sym">₹</span><span id="m-all">0</span></div><div class="sum-card-meta">All time total</div></div>
+        </div>
+        <div class="car-dots" id="money-dots">
+          <div class="cdot active" onclick="cSlide('money',0)"></div>
+          <div class="cdot" onclick="cSlide('money',1)"></div>
+          <div class="cdot" onclick="cSlide('money',2)"></div>
+        </div>
+      </div>
+
+      <div class="money-form-grid">
+        <div class="inp-card full"><label>📅 Date</label><input type="date" id="m-date"></div>
+        <div class="inp-card"><label>🚌 Bus</label><input type="number" id="m-bus" placeholder="0" min="0"></div>
+        <div class="inp-card"><label>🍱 Food</label><input type="number" id="m-food" placeholder="0" min="0"></div>
+        <div class="inp-card full"><label>📦 Others</label><input type="number" id="m-others" placeholder="0" min="0"></div>
+      </div>
+      <button class="main-add-btn" onclick="addMoney()">+ Add Money Entry</button>
+
+      <div class="chart-card">
+        <div style="font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.75rem">Last 7 Days</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="ldot" style="background:#7c6af5"></div>Bus</div>
+          <div class="legend-item"><div class="ldot" style="background:#f472b6"></div>Food</div>
+          <div class="legend-item"><div class="ldot" style="background:#34d399"></div>Others</div>
+        </div>
+        <canvas id="moneyChart" height="190"></canvas>
+      </div>
+
+      <div class="tbl-card">
+        <div class="tbl-hdr">All Entries</div>
+        <div id="money-tbl"></div>
+      </div>
+
+      <div style="margin-top:1.75rem">
+        <div class="sec-title">Year-wise Summary</div>
+        <div class="car-wrap" id="money-yr-car">
+          <div class="car-track" id="money-yr-track">
+            <div class="sum-card"><div class="sum-card-lbl">2025 – 2026</div><div class="sum-card-val"><span class="sym">₹</span>1510</div><div class="sum-card-meta">Total spent in +1</div></div>
+            <div class="sum-card"><div class="sum-card-lbl">2024 – 2025</div><div class="sum-card-val"><span class="sym">₹</span>2654</div><div class="sum-card-meta">Total spent in 10th</div></div>
+            <div class="sum-card"><div class="sum-card-lbl">2023 – 2024</div><div class="sum-card-val"><span class="sym">₹</span>1464</div><div class="sum-card-meta">Total spent in 9th</div></div>
+          </div>
+          <div class="car-dots" id="money-yr-dots">
+            <div class="cdot active" onclick="cSlide('money-yr',0)"></div>
+            <div class="cdot" onclick="cSlide('money-yr',1)"></div>
+            <div class="cdot" onclick="cSlide('money-yr',2)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE 2: TECH CORNER ═══ -->
+    <div class="tab-page" id="tab-tech">
+      <div class="pg-title">Tech Corner</div>
+      <div class="pg-sub">Save and organise your tech resources</div>
+      <div class="action-bar">
+        <div class="search-wrap" style="flex:1;margin:0"><span class="search-icon">🔍</span><input type="text" placeholder="Search by title or link…" oninput="renderTech(this.value)"></div>
+        <button class="add-fab" onclick="openModal('tech-modal')">+ Add</button>
+      </div>
+      <div class="cards-grid" id="tech-cards"></div>
+    </div>
+
+    <!-- ═══ PAGE 3: NOTES ═══ -->
+    <div class="tab-page" id="tab-notes">
+      <div class="pg-title">Notes</div>
+      <div class="pg-sub">Subject-wise study tracking</div>
+
+      <div class="car-wrap" id="notes-car">
+        <div class="car-track" id="notes-car-track">
+          <div class="sum-card"><div class="sum-card-lbl">Total Pages</div><div class="sum-card-val"><span id="n-pages">0</span></div><div class="sum-card-meta">Book pages tracked</div></div>
+          <div class="sum-card"><div class="sum-card-lbl">Total Notes</div><div class="sum-card-val"><span id="n-notes">0</span></div><div class="sum-card-meta">Notes created</div></div>
+        </div>
+        <div class="car-dots" id="notes-dots">
+          <div class="cdot active" onclick="cSlide('notes',0)"></div>
+          <div class="cdot" onclick="cSlide('notes',1)"></div>
+        </div>
+      </div>
+
+      <div class="subjects-main" id="subjects-main">
+        <div class="sec-title">Subjects</div>
+        <div class="subject-grid" id="subj-grid"></div>
+
+      <div style="margin-top:2rem">
+        <div class="sec-title">Year-wise Summary</div>
+        <div class="car-wrap" id="notes-yr-car">
+          <div class="car-track" id="notes-yr-track">
+            <div class="sum-card"><div class="sum-card-lbl">2025 – 2026</div><div class="sum-card-val">710</div><div class="sum-card-meta">Total pages used in +1</div></div>
+            <div class="sum-card"><div class="sum-card-lbl">2025 – 2026</div><div class="sum-card-val">9</div><div class="sum-card-meta">Total notes used in +1</div></div>
+            <div class="sum-card"><div class="sum-card-lbl">2024 – 2025</div><div class="sum-card-val">454</div><div class="sum-card-meta">Total pages used in 10th</div></div>
+            <div class="sum-card"><div class="sum-card-lbl">2023 – 2024</div><div class="sum-card-val">369</div><div class="sum-card-meta">Total pages used in 9th</div></div>
+          </div>
+          <div class="car-dots" id="notes-yr-dots">
+            <div class="cdot active" onclick="cSlide('notes-yr',0)"></div>
+            <div class="cdot" onclick="cSlide('notes-yr',1)"></div>
+            <div class="cdot" onclick="cSlide('notes-yr',2)"></div>
+            <div class="cdot" onclick="cSlide('notes-yr',3)"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+
+      <div class="subj-view" id="subj-view">
+        <button class="back-btn" onclick="closeSubject()">← Back to Subjects</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.75rem">
+          <div>
+            <div class="pg-title" id="sv-title"></div>
+            <div class="pg-sub" id="sv-summary"></div>
+          </div>
+          <button class="add-fab" onclick="resetNotesForm();openModal('notes-modal')">+ Add Entry</button>
+        </div>
+        <div class="search-wrap" style="margin-bottom:1.25rem"><span class="search-icon">🔍</span><input type="text" placeholder="Search by name or chapter…" oninput="renderNoteCards(currentSubject,this.value)"></div>
+        <div class="cards-grid" id="notes-cards"></div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE 4: SAVED (CHAT) ═══ -->
+    <div class="tab-page" id="tab-saved">
+      <div class="pg-title">Saved</div>
+      <div class="pg-sub">Your personal message board</div>
+      <div class="chat-wrap">
+        <div class="chat-messages" id="chat-msgs"></div>
+        <div class="chat-input-row">
+          <textarea id="chat-inp" placeholder="Write a message…" rows="2" onkeydown="chatKey(event)"></textarea>
+          <button class="send-btn" onclick="sendMsg()">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE 5: PASSWORDS ═══ -->
+    <div class="tab-page" id="tab-passwords">
+      <div class="pg-title">Passwords</div>
+      <div class="pg-sub">Stored credentials (local only)</div>
+      <div class="action-bar">
+        <div class="search-wrap" style="flex:1;margin:0"><span class="search-icon">🔍</span><input type="text" placeholder="Search by title…" oninput="renderPwd(this.value)"></div>
+        <button class="add-fab" onclick="openModal('pwd-modal')">+ Add</button>
+      </div>
+      <div class="cards-grid" id="pwd-cards"></div>
+    </div>
+
+    <!-- ═══ PAGE 6: SCHOOL ═══ -->
+    <div class="tab-page" id="tab-school">
+      <div class="pg-title">School</div>
+      <div class="pg-sub">Attendance & timetable</div>
+
+      <div class="car-wrap" id="school-car">
+        <div class="car-track" id="school-car-track">
+          <div class="sum-card"><div class="sum-card-lbl">Total Present</div><div class="sum-card-val"><span id="sc-today">0</span></div><div class="sum-card-meta">Total days present</div></div>
+          <div class="sum-card"><div class="sum-card-lbl">Monthly Present</div><div class="sum-card-val"><span id="sc-month">0</span></div><div class="sum-card-meta" id="sc-month-lbl">Days present this month</div></div>
+          <div class="sum-card"><div class="sum-card-lbl">Total Absent</div><div class="sum-card-val"><span id="sc-absent">0</span></div><div class="sum-card-meta">Total absent days</div></div>
+        </div>
+        <div class="car-dots" id="school-dots">
+          <div class="cdot active" onclick="cSlide('school',0)"></div>
+          <div class="cdot" onclick="cSlide('school',1)"></div>
+          <div class="cdot" onclick="cSlide('school',2)"></div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <div class="sec-title" style="margin:0">Attendance</div>
+        <button class="add-fab" onclick="openModal('att-modal')">+ Mark Attendance</button>
+      </div>
+
+      <div class="tt-card" style="margin-bottom:1.75rem">
+        <div class="tt-hdr">Weekly Timetable</div>
+        <div style="overflow-x:auto">
+          <table class="tt-table" id="tt-table"></table>
+        </div>
+      </div>
+
+      <div class="sec-title">Absent Records</div>
+      <div class="abs-cards" id="abs-cards"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Tech Modal -->
+<div class="overlay" id="tech-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="tech-modal-title">Add Tech Resource</div><button class="modal-close" onclick="closeModal('tech-modal')">✕</button></div>
+    <div class="form-group"><label>Title *</label><input type="text" id="t-title" placeholder="e.g. MDN Web Docs"></div>
+    <div class="form-group"><label>Link *</label><input type="url" id="t-link" placeholder="https://…"></div>
+    <div class="form-group"><label>Description / Use</label><textarea id="t-use" rows="3" placeholder="What is this for?"></textarea></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('tech-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="submitTech()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notes Modal -->
+<div class="overlay" id="notes-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="notes-modal-title">Add Entry</div><button class="modal-close" onclick="closeModal('notes-modal')">✕</button></div>
+    <div class="form-group"><label>Name *</label><input type="text" id="n-name" placeholder="Topic or chapter name"></div>
+    <div class="form-group"><label>Chapter Number *</label><input type="number" id="n-ch" placeholder="e.g. 3.1" step="0.1" min="0"></div>
+    <div class="form-group"><label>Source *</label><select id="n-source"><option value="App" selected>App</option><option value="Xylem YT">Xylem YT</option><option value="Youtube">Youtube</option><option value="School">School</option></select></div>
+    <div class="cb-group"><input type="checkbox" id="n-notescb" onchange="toggleNotesField()"><label for="n-notescb">Notes Created?</label></div>
+    <div class="form-group" id="n-pg-group" style="display:block"><label>Book Page No.</label><input type="number" id="n-pg" placeholder="e.g. 45" min="0"></div>
+    <div class="form-group"><label>Part of Video (number)</label><input type="number" id="n-vid" placeholder="e.g. 2" min="0"></div>
+    <div class="form-group"><label>Date of Video</label><input type="date" id="n-date"></div>
+    <div class="cb-group"><input type="checkbox" id="n-done"><label for="n-done">Chapter Completed</label></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('notes-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="submitNote()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password Modal -->
+<div class="overlay" id="pwd-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="pwd-modal-title">Add Password</div><button class="modal-close" onclick="closeModal('pwd-modal')">✕</button></div>
+    <div class="form-group"><label>Title *</label><input type="text" id="p-title" placeholder="e.g. Gmail"></div>
+    <div class="form-group"><label>Link</label><input type="url" id="p-link" placeholder="https://…"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Username *</label><input type="text" id="p-user" placeholder="username or email"></div>
+      <div class="form-group"><label>Password *</label><input type="text" id="p-pass" placeholder="password"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('pwd-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="submitPwd()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attendance Modal -->
+<div class="overlay" id="att-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Mark Attendance</div><button class="modal-close" onclick="closeModal('att-modal')">✕</button></div>
+    <div class="form-group"><label>Date *</label><input type="date" id="a-date"></div>
+    <div class="cb-group"><input type="checkbox" id="a-absent" onchange="toggleAbsent()"><label for="a-absent">Absent</label></div>
+    <div class="form-group" id="a-reason-grp" style="display:none"><label>Reason *</label><input type="text" id="a-reason" placeholder="Reason for absence"></div>
+    <div class="cb-group"><input type="checkbox" id="a-special"><label for="a-special">Special Class</label></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('att-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="submitAtt()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Confirm/Delete Modal -->
+<div class="overlay" id="del-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Delete?</div><button class="modal-close" onclick="closeModal('del-modal')">✕</button></div>
+    <div style="font-size:0.88rem;color:var(--text2);margin-bottom:1.5rem" id="del-msg">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('del-modal')">Cancel</button>
+      <button class="mbtn mbtn-danger" onclick="execDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Money Row Modal -->
+<div class="overlay" id="m-row-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="m-row-date"></div><button class="modal-close" onclick="closeModal('m-row-modal')">✕</button></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('m-row-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="openMoneyEdit()">Edit</button>
+      <button class="mbtn mbtn-danger" onclick="openMoneyDel()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Money Edit Modal -->
+<div class="overlay" id="m-edit-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Edit Entry</div><button class="modal-close" onclick="closeModal('m-edit-modal')">✕</button></div>
+    <div class="form-row">
+      <div class="form-group"><label>Bus</label><input type="number" id="me-bus" min="0"></div>
+      <div class="form-group"><label>Food</label><input type="number" id="me-food" min="0"></div>
+    </div>
+    <div class="form-group"><label>Others</label><input type="number" id="me-others" min="0"></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('m-edit-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="saveMoneyEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Edit Modal -->
+<div class="overlay" id="chat-edit-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Edit Message</div><button class="modal-close" onclick="closeModal('chat-edit-modal')">✕</button></div>
+    <div class="form-group"><label>Message</label><textarea id="chat-edit-inp" rows="4"></textarea></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('chat-edit-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="saveChatEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notes Edit Modal -->
+<div class="overlay" id="notes-edit-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Edit Entry</div><button class="modal-close" onclick="closeModal('notes-edit-modal')">✕</button></div>
+    <div class="form-group"><label>Name</label><input type="text" id="ne-name"></div>
+    <div class="form-group"><label>Chapter Number</label><input type="number" id="ne-ch" step="0.1" min="0"></div>
+    <div class="form-group"><label>Source</label><select id="ne-source"><option value="App">App</option><option value="Xylem YT">Xylem YT</option><option value="Youtube">Youtube</option><option value="School">School</option></select></div>
+    <div class="cb-group"><input type="checkbox" id="ne-notescb" onchange="toggleNotesEditField()"><label for="ne-notescb">Notes Created?</label></div>
+    <div class="form-group" id="ne-pg-group" style="display:none"><label>Book Page No.</label><input type="number" id="ne-pg" min="0"></div>
+    <div class="form-group"><label>Part of Video</label><input type="number" id="ne-vid" min="0"></div>
+    <div class="form-group"><label>Date of Video</label><input type="date" id="ne-date"></div>
+    <div class="cb-group"><input type="checkbox" id="ne-done"><label for="ne-done">Chapter Completed</label></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('notes-edit-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="saveNoteEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tech Edit Modal -->
+<div class="overlay" id="tech-edit-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Edit Resource</div><button class="modal-close" onclick="closeModal('tech-edit-modal')">✕</button></div>
+    <div class="form-group"><label>Title</label><input type="text" id="te-title"></div>
+    <div class="form-group"><label>Link</label><input type="url" id="te-link"></div>
+    <div class="form-group"><label>Description</label><textarea id="te-use" rows="3"></textarea></div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('tech-edit-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="saveTechEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pwd Edit Modal -->
+<div class="overlay" id="pwd-edit-modal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Edit Password</div><button class="modal-close" onclick="closeModal('pwd-edit-modal')">✕</button></div>
+    <div class="form-group"><label>Title</label><input type="text" id="pe-title"></div>
+    <div class="form-group"><label>Link</label><input type="url" id="pe-link"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Username</label><input type="text" id="pe-user"></div>
+      <div class="form-group"><label>Password</label><input type="text" id="pe-pass"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="mbtn mbtn-cancel" onclick="closeModal('pwd-edit-modal')">Cancel</button>
+      <button class="mbtn mbtn-submit" onclick="savePwdEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ══════════════════════════════════════════════
+//  FIREBASE
+// ══════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCXs5k4DfKRnYi0HFNYwGBZ22K14z-jQxI",
+  authDomain: "money-app-c1126.firebaseapp.com",
+  projectId: "money-app-c1126",
+  storageBucket: "money-app-c1126.firebasestorage.app",
+  messagingSenderId: "433481963103",
+  appId: "1:433481963103:web:678241640182888ea8edea",
+  measurementId: "G-JDQ6DT7G4Q"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Make db & firebase funcs globally accessible
+window._db = db;
+window._col = collection;
+window._doc = doc;
+window._addDoc = addDoc;
+window._getDocs = getDocs;
+window._updateDoc = updateDoc;
+window._deleteDoc = deleteDoc;
+window._onSnapshot = onSnapshot;
+window._query = query;
+window._orderBy = orderBy;
+window._firebaseReady = true;
+
+// ══════════════════════════════════════════════
+//  DATA STORES (in-memory, synced from Firebase)
+// ══════════════════════════════════════════════
+window.moneyData = [];
+window.techData = [];
+window.notesData = {}; // keyed by subject
+window.savedData = [];
+window.pwdData = [];
+window.schoolData = [];
+
+const SUBJECTS = [
+  {id:'maths',name:'Maths',emoji:'📐'},
+  {id:'chemistry',name:'Chemistry',emoji:'⚗️'},
+  {id:'physics',name:'Physics',emoji:'🔭'},
+  {id:'cs',name:'Computer Science',emoji:'💻'},
+  {id:'english',name:'English',emoji:'📖'},
+  {id:'malayalam',name:'Malayalam',emoji:'🌿'}
+];
+SUBJECTS.forEach(s => { window.notesData[s.id] = []; });
+
+window.currentSubject = null;
+window.selectedIdx = null;
+window.deleteCallback = null;
+window.editingId = null;
+
+// Carousel state per section
+window.carSlides = {money:0, notes:0, school:0, 'money-yr':0, 'notes-yr':0};
+window.carTimers = {};
+
+// ══════════════════════════════════════════════
+//  PIN
+// ══════════════════════════════════════════════
+const CORRECT_PIN = '1234';
+let pinInput = '';
+
+window.pp = function(d) {
+  if (pinInput.length >= 4) return;
+  pinInput += d;
+  updateDots();
+  if (pinInput.length === 4) {
+    setTimeout(() => {
+      if (pinInput === CORRECT_PIN) {
+        const ps = document.getElementById('pin-screen');
+        ps.style.transition = 'opacity 0.4s';
+        ps.style.opacity = '0';
+        setTimeout(() => {
+          ps.style.display = 'none';
+          document.getElementById('app').style.display = 'flex';
+          initApp();
+        }, 400);
+      } else {
+        document.querySelectorAll('.pin-dot').forEach(d => d.classList.add('error'));
+        document.getElementById('pin-err').textContent = 'Wrong PIN. Try again.';
+        setTimeout(() => {
+          pinInput = '';
+          document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error','filled'));
+          document.getElementById('pin-err').textContent = '';
+        }, 900);
+      }
+    }, 80);
+  }
+};
+window.pd = function() { if (!pinInput.length) return; pinInput = pinInput.slice(0,-1); updateDots(); };
+function updateDots() { for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled',i<pinInput.length); }
+document.addEventListener('keydown', e => {
+  if (document.getElementById('pin-screen').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') window.pp(e.key);
+  if (e.key === 'Backspace') window.pd();
+});
+
+// ══════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════
+window.goTab = function(name, btn) {
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name==='money') { updateMoneySummary(); renderMoneyTable(); renderMoneyChart(); }
+  if (name==='school') { updateSchoolSummary(); renderAbsCards(); }
+};
+
+window.mobTab = function(name, label, btn) {
+  window.goTab(name, null);
+  document.getElementById('mob-title').textContent = label;
+  document.querySelectorAll('.mob-menu-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  togMenu(true);
+};
+
+window.togMenu = function(close) {
+  const m = document.getElementById('mob-menu');
+  const h = document.getElementById('hbg');
+  const isOpen = m.classList.contains('open');
+  if (close || isOpen) { m.classList.remove('open'); h.classList.remove('open'); }
+  else { m.classList.add('open'); h.classList.add('open'); }
+};
+
+// ══════════════════════════════════════════════
+//  CAROUSEL
+// ══════════════════════════════════════════════
+window.cSlide = function(sec, n) {
+  window.carSlides[sec] = n;
+  document.getElementById(sec+'-car-track').style.transform = `translateX(-${n*100}%)`;
+  document.querySelectorAll(`#${sec}-dots .cdot`).forEach((d,i)=>d.classList.toggle('active',i===n));
+};
+
+function startCarousel(sec, total) {
+  if (window.carTimers[sec]) clearInterval(window.carTimers[sec]);
+  window.carTimers[sec] = setInterval(() => {
+    const next = (window.carSlides[sec]+1) % total;
+    window.cSlide(sec, next);
+  }, 3200);
+}
+
+// ══════════════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════════════
+window.openModal = function(id) { document.getElementById(id).classList.add('open'); };
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+window.toast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+};
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function fmtDate(s) {
+  const d = new Date(s+'T00:00:00');
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+}
+function uid() { return Math.random().toString(36).slice(2,10); }
+
+// ══════════════════════════════════════════════
+//  PAGE 1: MONEY
+// ══════════════════════════════════════════════
+// Listen realtime
+onSnapshot(_col(_db,'money'), snap => {
+  window.moneyData = snap.docs.map(d=>({id:d.id,...d.data()}));
+  updateMoneySummary();
+  renderMoneyTable();
+  renderMoneyChart();
+});
+
+window.addMoney = async function() {
+  const date = document.getElementById('m-date').value;
+  const bus = parseFloat(document.getElementById('m-bus').value)||0;
+  const food = parseFloat(document.getElementById('m-food').value)||0;
+  const others = parseFloat(document.getElementById('m-others').value)||0;
+  if (!date) { alert('Please select a date.'); return; }
+  await _addDoc(_col(_db,'money'), {date,bus,food,others});
+  document.getElementById('m-bus').value='';
+  document.getElementById('m-food').value='';
+  document.getElementById('m-others').value='';
+  toast('✓ Money entry added');
+};
+
+window.updateMoneySummary = function() {
+  const today = todayStr();
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  let st=0,sm=0,sa=0;
+  window.moneyData.forEach(r=>{
+    const t=r.bus+r.food+r.others;
+    sa+=t;
+    if(r.date===today) st+=t;
+    if(r.date.startsWith(ym)) sm+=t;
+  });
+  document.getElementById('m-today').textContent = st.toLocaleString('en-IN');
+  document.getElementById('m-month').textContent = sm.toLocaleString('en-IN');
+  document.getElementById('m-all').textContent = sa.toLocaleString('en-IN');
+  document.getElementById('m-month-lbl').textContent = now.toLocaleString('en-IN',{month:'long',year:'numeric'});
+};
+
+window.renderMoneyTable = function() {
+  const wrap = document.getElementById('money-tbl');
+  if (!window.moneyData.length) { wrap.innerHTML='<div class="empty-state">No entries yet. Add your first entry above.</div>'; return; }
+  const sorted = [...window.moneyData].sort((a,b)=>b.date.localeCompare(a.date));
+  const rows = sorted.map(r=>{
+    const total=r.bus+r.food+r.others;
+    return `<tr onclick="openMoneyRow('${r.id}')">
+      <td class="td-date">${fmtDate(r.date)}</td>
+      <td>₹${r.bus}</td><td>₹${r.food}</td><td>₹${r.others}</td>
+      <td class="td-total">₹${total}</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML=`<table><thead><tr><th>Date</th><th>Bus</th><th>Food</th><th>Others</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>`;
+};
+
+let moneyChartInst = null;
+window.renderMoneyChart = function() {
+  const days=[]; for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10));}
+  const labels=days.map(d=>{const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});});
+  const bus=[],food=[],others=[];
+  days.forEach(d=>{
+    const rows=window.moneyData.filter(r=>r.date===d);
+    bus.push(rows.reduce((s,r)=>s+r.bus,0));
+    food.push(rows.reduce((s,r)=>s+r.food,0));
+    others.push(rows.reduce((s,r)=>s+r.others,0));
+  });
+  const ctx=document.getElementById('moneyChart').getContext('2d');
+  if(moneyChartInst) moneyChartInst.destroy();
+  moneyChartInst=new Chart(ctx,{type:'bar',data:{labels,datasets:[
+    {label:'Bus',data:bus,backgroundColor:'rgba(124,106,245,0.85)',borderRadius:4},
+    {label:'Food',data:food,backgroundColor:'rgba(244,114,182,0.85)',borderRadius:4},
+    {label:'Others',data:others,backgroundColor:'rgba(52,211,153,0.85)',borderRadius:4},
+  ]},options:{responsive:true,plugins:{legend:{display:false}},scales:{
+    x:{stacked:true,grid:{color:'rgba(128,128,180,0.12)'},ticks:{color:()=>getComputedStyle(document.documentElement).getPropertyValue('--text3').trim(),font:{size:11}}},
+    y:{stacked:true,grid:{color:'rgba(128,128,180,0.12)'},ticks:{color:()=>getComputedStyle(document.documentElement).getPropertyValue('--text3').trim(),font:{size:11},callback:v=>'₹'+v}}
+  }}});
+};
+
+window.openMoneyRow = function(id) {
+  window.selectedIdx = id;
+  const r = window.moneyData.find(r=>r.id===id);
+  document.getElementById('m-row-date').textContent = fmtDate(r.date);
+  openModal('m-row-modal');
+};
+window.openMoneyEdit = function() {
+  closeModal('m-row-modal');
+  const r = window.moneyData.find(r=>r.id===window.selectedIdx);
+  document.getElementById('me-bus').value=r.bus;
+  document.getElementById('me-food').value=r.food;
+  document.getElementById('me-others').value=r.others;
+  openModal('m-edit-modal');
+};
+window.saveMoneyEdit = async function() {
+  const bus=parseFloat(document.getElementById('me-bus').value)||0;
+  const food=parseFloat(document.getElementById('me-food').value)||0;
+  const others=parseFloat(document.getElementById('me-others').value)||0;
+  await _updateDoc(_doc(_db,'money',window.selectedIdx),{bus,food,others});
+  closeModal('m-edit-modal');
+  toast('✏️ Entry updated');
+};
+window.openMoneyDel = function() {
+  closeModal('m-row-modal');
+  const r=window.moneyData.find(r=>r.id===window.selectedIdx);
+  document.getElementById('del-msg').textContent=`Delete entry for ${fmtDate(r.date)}? This cannot be undone.`;
+  window.deleteCallback=async()=>{ await _deleteDoc(_doc(_db,'money',window.selectedIdx)); toast('🗑 Entry deleted'); };
+  openModal('del-modal');
+};
+
+// ══════════════════════════════════════════════
+//  PAGE 2: TECH CORNER
+// ══════════════════════════════════════════════
+onSnapshot(_col(_db,'tech'), snap => {
+  window.techData = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderTech('');
+});
+
+window.submitTech = async function() {
+  const title=document.getElementById('t-title').value.trim();
+  const link=document.getElementById('t-link').value.trim();
+  const use=document.getElementById('t-use').value.trim();
+  if(!title||!link){alert('Title and Link are required.');return;}
+  if(window.editingId){
+    await _updateDoc(_doc(_db,'tech',window.editingId),{title,link,use});
+    window.editingId=null; closeModal('tech-edit-modal');
+    toast('✏️ Resource updated');
+  } else {
+    await _addDoc(_col(_db,'tech'),{title,link,use,created:Date.now()});
+    document.getElementById('t-title').value='';
+    document.getElementById('t-link').value='';
+    document.getElementById('t-use').value='';
+    closeModal('tech-modal');
+    toast('✓ Resource added');
+  }
+};
+
+window.renderTech = function(q='') {
+  const wrap=document.getElementById('tech-cards');
+  let data=[...window.techData];
+  // random order on initial load
+  if(!q) data.sort(()=>Math.random()-0.5);
+  else data=data.filter(r=>r.title.toLowerCase().includes(q.toLowerCase())||r.link.toLowerCase().includes(q.toLowerCase()));
+  if(!data.length){wrap.innerHTML='<div class="empty-state" style="grid-column:1/-1">No resources yet. Click + Add to get started.</div>';return;}
+  wrap.innerHTML=data.map(r=>`
+    <div class="g-card" id="tc-${r.id}" onclick="toggleTechCard('${r.id}')">
+      <div class="g-card-title">${esc(r.title)}</div>
+      <div class="g-card-sub">${esc(r.link)}</div>
+      <div class="expand-body">
+        <div class="expand-row"><strong>Link:</strong> <a href="${esc(r.link)}" target="_blank" style="color:var(--blue)">${esc(r.link)}</a></div>
+        ${r.use?`<div class="expand-row"><strong>Use:</strong> ${esc(r.use)}</div>`:''}
+        <div class="expand-actions">
+          <button class="ea-btn ea-copy" onclick="event.stopPropagation();copyText('${esc(r.link)}')">Copy Link</button>
+          <button class="ea-btn ea-edit" onclick="event.stopPropagation();openTechEdit('${r.id}')">Edit</button>
+          <button class="ea-btn ea-del" onclick="event.stopPropagation();openTechDel('${r.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+};
+
+window.toggleTechCard = function(id) {
+  const el=document.getElementById('tc-'+id);
+  const isExp=el.classList.contains('expanded');
+  document.querySelectorAll('#tech-cards .g-card').forEach(c=>c.classList.remove('expanded'));
+  if(!isExp) el.classList.add('expanded');
+};
+window.openTechEdit = function(id) {
+  const r=window.techData.find(r=>r.id===id);
+  window.editingId=id;
+  document.getElementById('te-title').value=r.title;
+  document.getElementById('te-link').value=r.link;
+  document.getElementById('te-use').value=r.use||'';
+  openModal('tech-edit-modal');
+};
+window.saveTechEdit = async function() {
+  const title=document.getElementById('te-title').value.trim();
+  const link=document.getElementById('te-link').value.trim();
+  const use=document.getElementById('te-use').value.trim();
+  await _updateDoc(_doc(_db,'tech',window.editingId),{title,link,use});
+  window.editingId=null; closeModal('tech-edit-modal'); toast('✏️ Updated');
+};
+window.openTechDel = function(id) {
+  document.getElementById('del-msg').textContent='Delete this resource? This cannot be undone.';
+  window.deleteCallback=async()=>{ await _deleteDoc(_doc(_db,'tech',id)); toast('🗑 Deleted'); };
+  openModal('del-modal');
+};
+
+// ══════════════════════════════════════════════
+//  PAGE 3: NOTES
+// ══════════════════════════════════════════════
+SUBJECTS.forEach(s=>{
+  onSnapshot(_col(_db,'notes_'+s.id), snap => {
+    window.notesData[s.id] = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderSubjectGrid();
+    updateNotesSummary();
+    if(window.currentSubject===s.id) renderNoteCards(s.id,'');
+  });
+});
+
+window.updateNotesSummary = function() {
+  let pages=0,notes=0;
+  SUBJECTS.forEach(s=>{
+    (window.notesData[s.id]||[]).forEach(r=>{
+      if(r.notesCreated) notes++;
+      else pages+=(parseInt(r.pageNo)||0);
+    });
+  });
+  document.getElementById('n-pages').textContent=pages;
+  document.getElementById('n-notes').textContent=notes;
+};
+
+window.renderSubjectGrid = function() {
+  const grid=document.getElementById('subj-grid');
+  grid.innerHTML=SUBJECTS.map(s=>{
+    const cnt=(window.notesData[s.id]||[]).length;
+    return `<div class="subj-card" onclick="openSubject('${s.id}')">
+      <div class="subj-emoji">${s.emoji}</div>
+      <div class="subj-name">${s.name}</div>
+      <div class="subj-count">${cnt} entr${cnt===1?'y':'ies'}</div>
+    </div>`;
+  }).join('');
+};
+
+window.openSubject = function(sid) {
+  window.currentSubject=sid;
+  const s=SUBJECTS.find(s=>s.id===sid);
+  document.getElementById('subjects-main').classList.add('hidden');
+  document.getElementById('subj-view').classList.add('active');
+  document.getElementById('sv-title').textContent=s.emoji+' '+s.name;
+  document.getElementById('notes-modal-title').textContent='Add Entry — '+s.name;
+  renderNoteCards(sid,'');
+  updateSubjectSummary(sid);
+};
+
+window.closeSubject = function() {
+  window.currentSubject=null;
+  document.getElementById('subjects-main').classList.remove('hidden');
+  document.getElementById('subj-view').classList.remove('active');
+};
+
+window.updateSubjectSummary = function(sid) {
+  const data=window.notesData[sid]||[];
+  const total=data.length;
+  const done=data.filter(r=>r.completed).length;
+  document.getElementById('sv-summary').textContent=`${total} entries · ${done} completed`;
+};
+
+window.toggleNotesField = function() {
+  document.getElementById('n-pg-group').style.display=document.getElementById('n-notescb').checked?'none':'block';
+};
+window.toggleNotesEditField = function() {
+  document.getElementById('ne-pg-group').style.display=document.getElementById('ne-notescb').checked?'none':'block';
+};
+
+window.resetNotesForm = function() {
+  ['n-name','n-ch','n-pg','n-vid'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('n-source').value='App';
+  document.getElementById('n-notescb').checked=false;
+  document.getElementById('n-done').checked=false;
+  document.getElementById('n-date').value=todayStr();
+  document.getElementById('n-pg-group').style.display='block';
+};
+
+window.submitNote = async function() {
+  const name=document.getElementById('n-name').value.trim();
+  const ch=document.getElementById('n-ch').value;
+  if(!name||!ch){alert('Name and Chapter Number are required.');return;}
+  const source=document.getElementById('n-source').value||'App';
+  const notesCreated=document.getElementById('n-notescb').checked;
+  const pageNo=notesCreated?0:(parseInt(document.getElementById('n-pg').value)||0);
+  const vidPart=parseInt(document.getElementById('n-vid').value)||0;
+  const vidDate=document.getElementById('n-date').value;
+  const completed=document.getElementById('n-done').checked;
+  const sid=window.currentSubject;
+  await _addDoc(_col(_db,'notes_'+sid),{name,chapter:parseFloat(ch),source,notesCreated,pageNo,vidPart,vidDate,completed,created:Date.now()});
+  // reset
+  ['n-name','n-ch','n-pg','n-vid'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('n-source').value='App';
+  document.getElementById('n-notescb').checked=false;
+  document.getElementById('n-done').checked=false;
+  document.getElementById('n-date').value=todayStr();
+  document.getElementById('n-pg-group').style.display='block';
+  closeModal('notes-modal');
+  toast('✓ Entry added');
+};
+
+window.renderNoteCards = function(sid, q='') {
+  const wrap=document.getElementById('notes-cards');
+  let data=[...(window.notesData[sid]||[])];
+  data.sort((a,b)=>a.chapter-b.chapter);
+  if(q) data=data.filter(r=>r.name.toLowerCase().includes(q.toLowerCase())||String(r.chapter).includes(q));
+  updateSubjectSummary(sid);
+  if(!data.length){wrap.innerHTML='<div class="empty-state" style="grid-column:1/-1">No entries yet.</div>';return;}
+  wrap.innerHTML=data.map(r=>`
+    <div class="g-card" id="nc-${r.id}" onclick="toggleNoteCard('${r.id}','${sid}')">
+      <div class="g-card-title">${esc(r.name)}</div>
+      <div class="g-card-sub">Chapter ${r.chapter}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:0.4rem">
+        <div class="g-card-tag">${r.completed?'✓ Completed':'In Progress'}</div>
+        <div class="g-card-tag" style="background:rgba(244,114,182,0.1);color:var(--accent3)">${r.source||'App'}</div>
+      </div>
+      <div class="expand-body">
+        ${r.source?`<div class="expand-row"><strong>Source:</strong> ${r.source}</div>`:''}
+        <div class="expand-row"><strong>Notes:</strong> ${r.notesCreated?'Yes':'No'}</div>
+        ${!r.notesCreated&&r.pageNo?`<div class="expand-row"><strong>Page No:</strong> ${r.pageNo}</div>`:''}
+        ${r.vidPart?`<div class="expand-row"><strong>Video Part:</strong> ${r.vidPart}</div>`:''}
+        ${r.vidDate?`<div class="expand-row"><strong>Video Date:</strong> ${fmtDate(r.vidDate)}</div>`:''}
+        <div class="expand-actions">
+          <button class="ea-btn ea-edit" onclick="event.stopPropagation();openNoteEdit('${r.id}','${sid}')">Edit</button>
+          <button class="ea-btn ea-del" onclick="event.stopPropagation();openNoteDel('${r.id}','${sid}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+};
+
+window.toggleNoteCard = function(id, sid) {
+  const el=document.getElementById('nc-'+id);
+  const isExp=el.classList.contains('expanded');
+  document.querySelectorAll('#notes-cards .g-card').forEach(c=>c.classList.remove('expanded'));
+  if(!isExp) el.classList.add('expanded');
+};
+window.openNoteEdit = function(id, sid) {
+  const r=window.notesData[sid].find(r=>r.id===id);
+  window.editingId=id; window.currentSubject=sid;
+  document.getElementById('ne-name').value=r.name;
+  document.getElementById('ne-ch').value=r.chapter;
+  document.getElementById('ne-notescb').checked=r.notesCreated;
+  document.getElementById('ne-pg').value=r.pageNo||'';
+  document.getElementById('ne-pg-group').style.display=r.notesCreated?'none':'block';
+  document.getElementById('ne-vid').value=r.vidPart||'';
+  document.getElementById('ne-date').value=r.vidDate||'';
+  document.getElementById('ne-source').value=r.source||'App';
+  document.getElementById('ne-done').checked=r.completed;
+  openModal('notes-edit-modal');
+};
+window.saveNoteEdit = async function() {
+  const name=document.getElementById('ne-name').value.trim();
+  const ch=document.getElementById('ne-ch').value;
+  const source=document.getElementById('ne-source').value||'App';
+  const notesCreated=document.getElementById('ne-notescb').checked;
+  const pageNo=notesCreated?0:(parseInt(document.getElementById('ne-pg').value)||0);
+  const vidPart=parseInt(document.getElementById('ne-vid').value)||0;
+  const vidDate=document.getElementById('ne-date').value;
+  const completed=document.getElementById('ne-done').checked;
+  await _updateDoc(_doc(_db,'notes_'+window.currentSubject,window.editingId),{name,chapter:parseFloat(ch),source,notesCreated,pageNo,vidPart,vidDate,completed});
+  window.editingId=null; closeModal('notes-edit-modal'); toast('✏️ Updated');
+};
+window.openNoteDel = function(id, sid) {
+  document.getElementById('del-msg').textContent='Delete this entry? This cannot be undone.';
+  window.deleteCallback=async()=>{ await _deleteDoc(_doc(_db,'notes_'+sid,id)); toast('🗑 Deleted'); };
+  openModal('del-modal');
+};
+
+// ══════════════════════════════════════════════
+//  PAGE 4: SAVED (CHAT)
+// ══════════════════════════════════════════════
+onSnapshot(_col(_db,'saved'), snap => {
+  window.savedData = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderChat();
+});
+
+window.sendMsg = async function() {
+  const inp=document.getElementById('chat-inp');
+  const text=inp.value.trim();
+  if(!text) return;
+  await _addDoc(_col(_db,'saved'),{text,ts:Date.now()});
+  inp.value='';
+  toast('✓ Message saved');
+};
+
+window.chatKey = function(e) {
+  if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); window.sendMsg();}
+};
+
+window.renderChat = function() {
+  const wrap=document.getElementById('chat-msgs');
+  if(!window.savedData.length){wrap.innerHTML='<div class="empty-state">No messages yet. Type below to save a note.</div>';return;}
+  const sorted=[...window.savedData].sort((a,b)=>b.ts-a.ts);
+  wrap.innerHTML=sorted.map(r=>`
+    <div class="chat-msg">
+      <div class="msg-actions">
+        <button class="msg-act-btn" onclick="copyText('${esc(r.text.replace(/'/g,"&#39;"))}')">Copy</button>
+        <button class="msg-act-btn" onclick="openChatEdit('${r.id}')">Edit</button>
+        <button class="msg-act-btn" onclick="openChatDel('${r.id}')">Delete</button>
+      </div>
+      <div class="msg-text">${esc(r.text)}</div>
+      <div class="msg-time">${new Date(r.ts).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+    </div>`).join('');
+};
+
+window.openChatEdit = function(id) {
+  const r=window.savedData.find(r=>r.id===id);
+  window.editingId=id;
+  document.getElementById('chat-edit-inp').value=r.text;
+  openModal('chat-edit-modal');
+};
+window.saveChatEdit = async function() {
+  const text=document.getElementById('chat-edit-inp').value.trim();
+  if(!text) return;
+  await _updateDoc(_doc(_db,'saved',window.editingId),{text});
+  window.editingId=null; closeModal('chat-edit-modal'); toast('✏️ Message updated');
+};
+window.openChatDel = function(id) {
+  document.getElementById('del-msg').textContent='Delete this message? This cannot be undone.';
+  window.deleteCallback=async()=>{ await _deleteDoc(_doc(_db,'saved',id)); toast('🗑 Message deleted'); };
+  openModal('del-modal');
+};
+
+// ══════════════════════════════════════════════
+//  PAGE 5: PASSWORDS
+// ══════════════════════════════════════════════
+onSnapshot(_col(_db,'passwords'), snap => {
+  window.pwdData = snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderPwd('');
+});
+
+window.submitPwd = async function() {
+  const title=document.getElementById('p-title').value.trim();
+  const link=document.getElementById('p-link').value.trim();
+  const user=document.getElementById('p-user').value.trim();
+  const pass=document.getElementById('p-pass').value.trim();
+  if(!title||!user||!pass){alert('Title, Username and Password are required.');return;}
+  await _addDoc(_col(_db,'passwords'),{title,link,user,pass,created:Date.now()});
+  ['p-title','p-link','p-user','p-pass'].forEach(id=>document.getElementById(id).value='');
+  closeModal('pwd-modal'); toast('✓ Password saved');
+};
+
+window.renderPwd = function(q='') {
+  const wrap=document.getElementById('pwd-cards');
+  let data=[...window.pwdData];
+  if(q) data=data.filter(r=>r.title.toLowerCase().includes(q.toLowerCase()));
+  if(!data.length){wrap.innerHTML='<div class="empty-state" style="grid-column:1/-1">No passwords saved. Click + Add.</div>';return;}
+  wrap.innerHTML=data.map(r=>`
+    <div class="g-card" id="pc-${r.id}" onclick="togglePwdCard('${r.id}')">
+      <div class="g-card-title">${esc(r.title)}</div>
+      <div class="g-card-sub">${esc(r.user)}</div>
+      <div class="expand-body">
+        <div class="expand-row"><strong>Password:</strong>
+          <span id="pd-${r.id}" style="font-family:monospace;cursor:pointer;color:var(--accent2)" onclick="event.stopPropagation();copyText('${esc(r.pass.replace(/'/g,"&#39;"))}');toast('📋 Password copied')" title="Click to copy">${esc(r.pass)}</span>
+        </div>
+        ${r.link?`<div class="expand-row"><strong>Link:</strong> <a href="${esc(r.link)}" target="_blank" style="color:var(--blue)" onclick="event.stopPropagation()">${esc(r.link)}</a></div>`:''}
+        <div class="expand-actions">
+          <button class="ea-btn ea-copy" onclick="event.stopPropagation();copyText('${esc(r.pass.replace(/'/g,"&#39;"))}');toast('📋 Password copied')">Copy</button>
+          <button class="ea-btn ea-edit" onclick="event.stopPropagation();openPwdEdit('${r.id}')">Edit</button>
+          <button class="ea-btn ea-del" onclick="event.stopPropagation();openPwdDel('${r.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+};
+
+window.togglePwdCard = function(id) {
+  const el=document.getElementById('pc-'+id);
+  const isExp=el.classList.contains('expanded');
+  document.querySelectorAll('#pwd-cards .g-card').forEach(c=>c.classList.remove('expanded'));
+  if(!isExp) el.classList.add('expanded');
+};
+window.openPwdEdit = function(id) {
+  const r=window.pwdData.find(r=>r.id===id);
+  window.editingId=id;
+  document.getElementById('pe-title').value=r.title;
+  document.getElementById('pe-link').value=r.link||'';
+  document.getElementById('pe-user').value=r.user;
+  document.getElementById('pe-pass').value=r.pass;
+  openModal('pwd-edit-modal');
+};
+window.savePwdEdit = async function() {
+  const title=document.getElementById('pe-title').value.trim();
+  const link=document.getElementById('pe-link').value.trim();
+  const user=document.getElementById('pe-user').value.trim();
+  const pass=document.getElementById('pe-pass').value.trim();
+  await _updateDoc(_doc(_db,'passwords',window.editingId),{title,link,user,pass});
+  window.editingId=null; closeModal('pwd-edit-modal'); toast('✏️ Updated');
+};
+window.openPwdDel = function(id) {
+  document.getElementById('del-msg').textContent='Delete this password? This cannot be undone.';
+  window.deleteCallback=async()=>{ await _deleteDoc(_doc(_db,'passwords',id)); toast('🗑 Deleted'); };
+  openModal('del-modal');
+};
+
+// ══════════════════════════════════════════════
+//  PAGE 6: SCHOOL
+// ══════════════════════════════════════════════
+onSnapshot(_col(_db,'school'), snap => {
+  window.schoolData = snap.docs.map(d=>({id:d.id,...d.data()}));
+  updateSchoolSummary();
+  renderAbsCards();
+});
+
+const TIMETABLE = {
+  Mon:['Maths','Physics','Chemistry','English','CS','PE','Malayalam','Library'],
+  Tue:['English','Maths','Physics','Chemistry','Malayalam','CS','PE','Drawing'],
+  Wed:['CS','Malayalam','Maths','Physics','English','Chemistry','PE','Activity'],
+  Thu:['Chemistry','English','Malayalam','Maths','CS','Physics','Drawing','PE'],
+  Fri:['Physics','CS','English','Malayalam','Chemistry','Maths','Activity','Library'],
+};
+
+function buildTimetable() {
+  const days=Object.keys(TIMETABLE);
+  const periods=['P1','P2','P3','P4','P5','P6','P7','P8'];
+  const tt=document.getElementById('tt-table');
+  let html=`<thead><tr><th>Period</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+  periods.forEach((p,i)=>{
+    html+=`<tr><td class="period-lbl">${p}</td>${days.map(d=>`<td>${TIMETABLE[d][i]}</td>`).join('')}</tr>`;
+  });
+  html+='</tbody>';
+  tt.innerHTML=html;
+}
+
+window.toggleAbsent = function() {
+  document.getElementById('a-reason-grp').style.display=document.getElementById('a-absent').checked?'block':'none';
+};
+
+window.submitAtt = async function() {
+  const date=document.getElementById('a-date').value;
+  if(!date){alert('Please select a date.');return;}
+  const absent=document.getElementById('a-absent').checked;
+  const reason=absent?document.getElementById('a-reason').value.trim():'';
+  if(absent&&!reason){alert('Please enter a reason for absence.');return;}
+  const special=document.getElementById('a-special').checked;
+  await _addDoc(_col(_db,'school'),{date,absent,reason,special});
+  ['a-date'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-absent').checked=false;
+  document.getElementById('a-special').checked=false;
+  document.getElementById('a-reason-grp').style.display='none';
+  document.getElementById('a-reason').value='';
+  document.getElementById('a-date').value=todayStr();
+  closeModal('att-modal'); toast('✓ Attendance marked');
+};
+
+window.updateSchoolSummary = function() {
+  const today=todayStr();
+  const now=new Date();
+  const ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  
+  document.getElementById('sc-today').textContent=window.schoolData.filter(r=>!r.absent).length;
+  const monthPresent=window.schoolData.filter(r=>r.date.startsWith(ym)&&!r.absent).length;
+  document.getElementById('sc-month').textContent=monthPresent;
+  document.getElementById('sc-month-lbl').textContent='Days present in '+now.toLocaleString('en-IN',{month:'long',year:'numeric'});
+  document.getElementById('sc-absent').textContent=window.schoolData.filter(r=>r.absent).length;
+};
+
+window.renderAbsCards = function() {
+  const wrap=document.getElementById('abs-cards');
+  const abs=window.schoolData.filter(r=>r.absent).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!abs.length){wrap.innerHTML='<div class="empty-state">No absent records.</div>';return;}
+  wrap.innerHTML=abs.map(r=>`
+    <div class="abs-card">
+      <div class="abs-card-date">${fmtDate(r.date)}</div>
+      <div class="abs-card-reason">${esc(r.reason)}</div>
+      ${r.special?'<span class="abs-tag">Special Class</span>':''}
+    </div>`).join('');
+};
+
+// ══════════════════════════════════════════════
+//  SHARED UTILITIES
+// ══════════════════════════════════════════════
+window.execDelete = async function() {
+  closeModal('del-modal');
+  if(window.deleteCallback) { await window.deleteCallback(); window.deleteCallback=null; }
+};
+
+window.copyText = function(text) {
+  navigator.clipboard.writeText(text).then(()=>toast('📋 Copied to clipboard')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('📋 Copied');
+  });
+};
+
+function esc(s) {
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+
+// ══════════════════════════════════════════════
+//  THEME
+// ══════════════════════════════════════════════
+function applyTheme(isLight) {
+  if (isLight) {
+    document.documentElement.classList.add('light');
+    ['theme-knob','theme-knob2','theme-knob3'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='☀️'; });
+    const lbl=document.getElementById('mob-theme-lbl'); if(lbl) lbl.textContent='Light Mode';
+  } else {
+    document.documentElement.classList.remove('light');
+    ['theme-knob','theme-knob2','theme-knob3'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='🌙'; });
+    const lbl=document.getElementById('mob-theme-lbl'); if(lbl) lbl.textContent='Dark Mode';
+  }
+  // Re-render chart to match new theme
+  if (typeof renderMoneyChart === 'function') renderMoneyChart();
+}
+
+window.toggleTheme = function() {
+  const isLight = !document.documentElement.classList.contains('light');
+  localStorage.setItem('myspace_theme', isLight ? 'light' : 'dark');
+  applyTheme(isLight);
+};
+
+// Load saved theme on startup (default: dark)
+const savedTheme = localStorage.getItem('myspace_theme');
+applyTheme(savedTheme === 'light');
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+window.initApp = function() {
+  document.getElementById('m-date').value = todayStr();
+  document.getElementById('n-date').value = todayStr();
+  document.getElementById('a-date').value = todayStr();
+  renderSubjectGrid();
+  buildTimetable();
+  startCarousel('money',3);
+  startCarousel('notes',2);
+  startCarousel('school',3);
+  startCarousel('money-yr',3);
+  startCarousel('notes-yr',4);
+  updateMoneySummary();
+  renderMoneyTable();
+  renderMoneyChart();
+  updateSchoolSummary();
+  renderAbsCards();
+  updateNotesSummary();
+  renderTech('');
+  renderPwd('');
+  renderChat();
+};
+</script>
+</body>
+</html>
