@@ -1354,6 +1354,21 @@
             background: var(--bg3)
         }
 
+        .tt-table tr:hover td {
+            background: none;
+            color: var(--text2)
+        }
+
+        .tt-table td.col-hover,
+        .tt-table th.col-hover {
+            background: rgba(124, 106, 245, 0.1);
+            color: var(--text)
+        }
+
+        .tt-table .period-lbl.col-hover {
+            background: rgba(124, 106, 245, 0.16)
+        }
+
         .abs-cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -1696,6 +1711,7 @@
             <div class="tab-page" id="tab-tech">
                 <div class="pg-title">Tech Corner</div>
                 <div class="pg-sub">Save and organise your tech resources</div>
+                <div class="pg-sub" id="tech-total">Total: 0</div>
                 <div class="action-bar">
                     <div class="search-wrap" style="flex:1;margin:0"><span class="search-icon">🔍</span><input
                             type="text" placeholder="Search by title or link…" oninput="renderTech(this.value)"></div>
@@ -1721,10 +1737,16 @@
                             <div class="sum-card-val"><span id="n-notes">0</span></div>
                             <div class="sum-card-meta">Notes created</div>
                         </div>
+                        <div class="sum-card">
+                            <div class="sum-card-lbl">Total Videos</div>
+                            <div class="sum-card-val"><span id="n-vids">0</span></div>
+                            <div class="sum-card-meta">Video parts watched</div>
+                        </div>
                     </div>
                     <div class="car-dots" id="notes-dots">
                         <div class="cdot active" onclick="cSlide('notes',0)"></div>
                         <div class="cdot" onclick="cSlide('notes',1)"></div>
+                        <div class="cdot" onclick="cSlide('notes',2)"></div>
                     </div>
                 </div>
 
@@ -1838,6 +1860,11 @@
 
                 <div class="sec-title">Absent Records</div>
                 <div class="abs-cards" id="abs-cards"></div>
+
+                <div class="tbl-card" style="margin-top:1.75rem">
+                    <div class="tbl-hdr">Present Records</div>
+                    <div id="present-tbl"></div>
+                </div>
             </div>
 
         </main>
@@ -2188,7 +2215,7 @@
             document.getElementById('tab-' + name).classList.add('active');
             if (btn) btn.classList.add('active');
             if (name === 'money') { updateMoneySummary(); renderMoneyTable(); renderMoneyChart(); }
-            if (name === 'school') { updateSchoolSummary(); renderAbsCards(); }
+            if (name === 'school') { updateSchoolSummary(); renderAbsCards(); renderPresentTable(); }
         };
 
         window.mobTab = function (name, label, btn) {
@@ -2397,6 +2424,7 @@
 
         window.renderTech = function (q = '') {
             const wrap = document.getElementById('tech-cards');
+            document.getElementById('tech-total').textContent = `Total: ${window.techData.length}`;
             let data = [...window.techData];
             // random order on initial load
             if (!q) data.sort(() => Math.random() - 0.5);
@@ -2458,15 +2486,17 @@
         });
 
         window.updateNotesSummary = function () {
-            let pages = 0, notes = 0;
+            let pages = 0, notes = 0, vids = 0;
             SUBJECTS.forEach(s => {
                 (window.notesData[s.id] || []).forEach(r => {
                     if (r.notesCreated) notes++;
                     else pages += (parseInt(r.pageNo) || 0);
+                    vids += (parseInt(r.vidPart) || 0);
                 });
             });
             document.getElementById('n-pages').textContent = pages;
             document.getElementById('n-notes').textContent = notes;
+            document.getElementById('n-vids').textContent = vids;
         };
 
         window.renderSubjectGrid = function () {
@@ -2744,6 +2774,7 @@
             window.schoolData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             updateSchoolSummary();
             renderAbsCards();
+            renderPresentTable();
         });
 
         const TIMETABLE = {
@@ -2764,6 +2795,27 @@
             });
             html += '</tbody>';
             tt.innerHTML = html;
+            attachColumnHover(tt);
+        }
+
+        function attachColumnHover(table) {
+            const cells = table.querySelectorAll('th, td');
+            cells.forEach(cell => {
+                cell.addEventListener('mouseenter', () => {
+                    const idx = cell.cellIndex;
+                    table.querySelectorAll('tr').forEach(tr => {
+                        const c = tr.children[idx];
+                        if (c) c.classList.add('col-hover');
+                    });
+                });
+                cell.addEventListener('mouseleave', () => {
+                    const idx = cell.cellIndex;
+                    table.querySelectorAll('tr').forEach(tr => {
+                        const c = tr.children[idx];
+                        if (c) c.classList.remove('col-hover');
+                    });
+                });
+            });
         }
 
         window.toggleAbsent = function () {
@@ -2797,6 +2849,17 @@
             document.getElementById('sc-month').textContent = monthPresent;
             document.getElementById('sc-month-lbl').textContent = 'Days present in ' + now.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
             document.getElementById('sc-absent').textContent = window.schoolData.filter(r => r.absent).length;
+        };
+
+        window.renderPresentTable = function () {
+            const wrap = document.getElementById('present-tbl');
+            const present = window.schoolData.filter(r => !r.absent).sort((a, b) => b.date.localeCompare(a.date));
+            if (!present.length) { wrap.innerHTML = '<div class="empty-state">No attendance marked yet.</div>'; return; }
+            const rows = present.map(r => `<tr>
+      <td class="td-date">${fmtDate(r.date)}</td>
+      <td>${r.special ? 'Yes' : 'No'}</td>
+    </tr>`).join('');
+            wrap.innerHTML = `<table><thead><tr><th>Date</th><th>Special Day</th></tr></thead><tbody>${rows}</tbody></table>`;
         };
 
         window.renderAbsCards = function () {
@@ -2871,7 +2934,7 @@
             renderSubjectGrid();
             buildTimetable();
             startCarousel('money', 3);
-            startCarousel('notes', 2);
+            startCarousel('notes', 3);
             startCarousel('school', 3);
             startCarousel('money-yr', 3);
             startCarousel('notes-yr', 4);
