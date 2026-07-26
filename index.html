@@ -2778,16 +2778,16 @@
         });
 
         const TIMETABLE = {
-            Mon: ['Chemistry', 'Physics (V)', 'English', 'CS', 'Maths (J)', 'Malalayalm', 'Chemistry LAB', 'CS LAB'],
-            Tue: ['Chemistry', 'Malayalam', 'CS', 'Maths (S)', 'Physics (H)', 'English', 'CS LAB', 'Physics (V) LAB'],
-            Wed: ['Chemistry', 'Maths (S)', 'Physics (H)', 'Malayalam', 'CS', 'Maths (S)', 'Library', 'English'],
-            Thu: ['English',  'Physics (V)', 'Physics (H) LAB', 'Maths (J) LAB', 'Malayalam', 'Maths (J)', 'CS', 'Chemistry'],
-            Fri: ['CS',  'Chemistry', 'Physics (H)', 'English', ' ', 'Chemistry LAB', 'Maths LAB', 'PT'],
+            Mon: ['Chemistry', 'Physics (V)', 'English', 'CS', 'Maths (J)', 'Malalayalm', 'Chemistry LAB', 'CS LAB', 'Chemistry'],
+            Tue: ['Chemistry', 'Malayalam', 'CS', 'Maths (S)', 'Physics (H)', 'English', 'CS LAB', 'Physics (V) LAB', 'CS'],
+            Wed: ['Chemistry', 'Maths (S)', 'Physics (H)', 'Malayalam', 'CS', 'Maths (S)', 'Library', 'English', ' '],
+            Thu: ['English',  'Physics (V)', 'Physics (H) LAB', 'Maths (J) LAB', 'Malayalam', 'Maths (J)', 'CS', 'Chemistry', 'Physics'],
+            Fri: ['CS',  'Chemistry', 'Physics (H)', 'English', ' ', 'Chemistry LAB', 'Maths LAB', 'PT', 'Maths'],
         };
 
         function buildTimetable() {
             const days = Object.keys(TIMETABLE);
-            const periods = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8'];
+            const periods = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'Lab (B1)'];
             const tt = document.getElementById('tt-table');
             let html = `<thead><tr><th>Period</th>${days.map(d => `<th>${d}</th>`).join('')}</tr></thead><tbody>`;
             periods.forEach((p, i) => {
